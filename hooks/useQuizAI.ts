@@ -73,9 +73,13 @@ Return ONLY valid JSON (no markdown, no code blocks):
 
 Rules:
 - Generate exactly 8 questions: 5 MCQ + 3 short answer
-- TAFE exam style, focus on HVAC: refrigeration cycle, ductwork, electrical, safety, Australian standards (AS/NZS)
+- Questions MUST be about specific technical details FROM the provided PDF content
+- DO NOT ask generic questions about the unit name, objectives, or structure
+- Ask about specific facts, values, formulas, procedures, standards, components, and technical terms mentioned in the text
+- MCQ should test detailed knowledge: "Which of the following is NOT a type of...", "What is the correct value for...", "According to the text, which component..."
+- Short answer should ask for specific technical explanations or definitions from the content
 - All content in English
-- For UEE unit content, focus on the specific competency requirements`;
+- Focus on testable technical knowledge, not meta-information about the unit itself`;
 
 const GRADING_PROMPT = `You are an HVAC exam grader. Grade the student's short answer.
 Accept if meaning is correct and key technical concepts are present.

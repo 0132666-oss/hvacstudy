@@ -4,51 +4,61 @@ import { useState, useCallback, useRef } from "react";
 import { UploadedImage } from "@/types/study";
 
 interface Props {
-  onImageReady: (image: UploadedImage) => void;
+  onImagesReady: (images: UploadedImage[]) => void;
 }
 
-export default function ImageUploader({ onImageReady }: Props) {
+export default function ImageUploader({ onImagesReady }: Props) {
   const [dragging, setDragging] = useState(false);
+  const [pending, setPending] = useState<UploadedImage[]>([]);
   const fileRef = useRef<HTMLInputElement>(null);
   const cameraRef = useRef<HTMLInputElement>(null);
 
-  const processFile = useCallback(
-    (file: File) => {
+  const addFiles = useCallback((files: File[]) => {
+    const imageFiles = files.filter((f) => f.type.startsWith("image/"));
+    imageFiles.forEach((file) => {
       const reader = new FileReader();
       reader.onload = () => {
         const dataUrl = reader.result as string;
         const base64 = dataUrl.split(",")[1];
         const image: UploadedImage = {
-          id: `img-${Date.now()}`,
+          id: `img-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
           file,
           preview: dataUrl,
           base64,
         };
-        onImageReady(image);
+        setPending((prev) => [...prev, image]);
       };
       reader.readAsDataURL(file);
-    },
-    [onImageReady]
-  );
+    });
+  }, []);
 
   const handleDrop = useCallback(
     (e: React.DragEvent) => {
       e.preventDefault();
       setDragging(false);
-      const file = e.dataTransfer.files[0];
-      if (file && file.type.startsWith("image/")) processFile(file);
+      addFiles(Array.from(e.dataTransfer.files));
     },
-    [processFile]
+    [addFiles]
   );
 
   const handleFileChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
-      const file = e.target.files?.[0];
-      if (file) processFile(file);
+      const files = Array.from(e.target.files || []);
+      if (files.length > 0) addFiles(files);
       if (e.target) e.target.value = "";
     },
-    [processFile]
+    [addFiles]
   );
+
+  const removeImage = useCallback((id: string) => {
+    setPending((prev) => prev.filter((img) => img.id !== id));
+  }, []);
+
+  const handleSubmit = useCallback(() => {
+    if (pending.length === 0) return;
+    onImagesReady(pending);
+    setPending([]);
+  }, [pending, onImagesReady]);
 
   return (
     <div className="flex flex-col items-center gap-3 px-2">
@@ -66,7 +76,7 @@ export default function ImageUploader({ onImageReady }: Props) {
       >
         <div className="text-4xl mb-3">📷</div>
         <p className="text-slate-700 font-medium mb-1">Upload study material</p>
-        <p className="text-slate-400 text-sm">Tap to select from gallery</p>
+        <p className="text-slate-400 text-sm">Tap to select (multiple OK)</p>
       </div>
 
       {/* Two buttons: Camera + Gallery */}
@@ -85,6 +95,31 @@ export default function ImageUploader({ onImageReady }: Props) {
         </button>
       </div>
 
+      {/* Preview thumbnails */}
+      {pending.length > 0 && (
+        <div className="w-full space-y-3">
+          <div className="flex flex-wrap gap-2">
+            {pending.map((img) => (
+              <div key={img.id} className="relative w-20 h-20 rounded-lg overflow-hidden border border-slate-200">
+                <img src={img.preview} alt="" className="w-full h-full object-cover" />
+                <button
+                  onClick={() => removeImage(img.id)}
+                  className="absolute top-0.5 right-0.5 w-5 h-5 rounded-full bg-red-500 text-white text-xs flex items-center justify-center"
+                >
+                  x
+                </button>
+              </div>
+            ))}
+          </div>
+          <button
+            onClick={handleSubmit}
+            className="w-full py-3 rounded-xl bg-orange-500 text-white font-semibold hover:bg-orange-600 active:scale-[0.98] transition-all"
+          >
+            Analyze {pending.length} image{pending.length > 1 ? "s" : ""}
+          </button>
+        </div>
+      )}
+
       {/* Hidden inputs */}
       <input
         ref={cameraRef}
@@ -98,6 +133,7 @@ export default function ImageUploader({ onImageReady }: Props) {
         ref={fileRef}
         type="file"
         accept="image/*"
+        multiple
         onChange={handleFileChange}
         className="hidden"
       />

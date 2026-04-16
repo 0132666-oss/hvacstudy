@@ -47,10 +47,12 @@ export default function StudyApp() {
     [validate, addSession]
   );
 
-  const handleImageReady = useCallback(
-    async (image: UploadedImage) => {
+  const handleImagesReady = useCallback(
+    async (images: UploadedImage[]) => {
       setStep("analyzing");
-      const result = await analyzeImage(image.base64, image.file.type);
+      const result = await analyzeImage(
+        images.map((img) => ({ base64: img.base64, mimeType: img.file.type }))
+      );
       if (!result) {
         setStep("idle");
         return;
@@ -75,12 +77,15 @@ export default function StudyApp() {
 
   const handleSelectSession = useCallback((id: string) => {
     const session = sessions.find((s) => s.id === id);
-    if (session) {
-      setContent(session.content);
-      setQuizContent(session.content);
-      setViewTab("lecture");
-      setStep("ready");
-    }
+    if (!session) return;
+    const c = session.content;
+    // Ensure lessons exist for older sessions
+    if (!c.lessons) c.lessons = [];
+    setContent(c);
+    setQuizContent(c);
+    setViewTab("lecture");
+    setStep("ready");
+    window.scrollTo(0, 0);
   }, [sessions]);
 
   const handleReset = useCallback(() => {
@@ -172,7 +177,7 @@ export default function StudyApp() {
               <PDFUploader onTextExtracted={handlePDFText} />
             )}
             {inputTab === "image" && (
-              <ImageUploader onImageReady={handleImageReady} />
+              <ImageUploader onImagesReady={handleImagesReady} />
             )}
 
             {error && (

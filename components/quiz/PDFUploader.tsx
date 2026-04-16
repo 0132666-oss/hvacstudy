@@ -9,61 +9,82 @@ interface Props {
 export default function PDFUploader({ onTextExtracted }: Props) {
   const [dragging, setDragging] = useState(false);
   const [extracting, setExtracting] = useState(false);
-  const [fileName, setFileName] = useState<string | null>(null);
+  const [progress, setProgress] = useState("");
   const fileRef = useRef<HTMLInputElement>(null);
 
-  const extractText = useCallback(
-    async (file: File) => {
+  const extractFromFile = useCallback(async (file: File): Promise<string> => {
+    const pdfjsLib = await import("pdfjs-dist");
+    pdfjsLib.GlobalWorkerOptions.workerSrc = `${window.location.origin}/pdf.worker.min.mjs`;
+
+    const arrayBuffer = await file.arrayBuffer();
+    const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+
+    let fullText = "";
+    for (let i = 1; i <= pdf.numPages; i++) {
+      const page = await pdf.getPage(i);
+      const content = await page.getTextContent();
+      const pageText = content.items
+        .map((item) => ("str" in item ? (item as { str: string }).str : ""))
+        .join(" ");
+      fullText += pageText + "\n\n";
+    }
+    return fullText;
+  }, []);
+
+  const processFiles = useCallback(
+    async (files: File[]) => {
+      const pdfFiles = files.filter((f) => f.type === "application/pdf");
+      if (pdfFiles.length === 0) return;
+
       setExtracting(true);
-      setFileName(file.name);
       try {
-        const pdfjsLib = await import("pdfjs-dist");
-        pdfjsLib.GlobalWorkerOptions.workerSrc = `${window.location.origin}/pdf.worker.min.mjs`;
+        let combinedText = "";
+        const names: string[] = [];
 
-        const arrayBuffer = await file.arrayBuffer();
-        const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-
-        let fullText = "";
-        for (let i = 1; i <= pdf.numPages; i++) {
-          const page = await pdf.getPage(i);
-          const content = await page.getTextContent();
-          const pageText = content.items
-            .map((item) => ("str" in item ? (item as { str: string }).str : ""))
-            .join(" ");
-          fullText += pageText + "\n\n";
+        for (let i = 0; i < pdfFiles.length; i++) {
+          const file = pdfFiles[i];
+          setProgress(`Extracting ${i + 1}/${pdfFiles.length}: ${file.name}`);
+          names.push(file.name);
+          const text = await extractFromFile(file);
+          combinedText += `--- ${file.name} ---\n${text}\n\n`;
         }
 
-        if (fullText.trim().length < 50) {
-          throw new Error("PDF에서 텍스트를 거의 추출하지 못했습니다. 이미지 기반 PDF일 수 있습니다.");
+        if (combinedText.trim().length < 50) {
+          throw new Error("PDF에서 텍스트를 거의 추출하지 못했습니다.");
         }
 
-        onTextExtracted(fullText.trim(), file.name);
+        const displayName = pdfFiles.length === 1
+          ? names[0]
+          : `${names[0]} + ${pdfFiles.length - 1} more`;
+
+        onTextExtracted(combinedText.trim(), displayName);
       } catch (err) {
         alert(err instanceof Error ? err.message : "PDF 처리 실패");
-        setFileName(null);
       } finally {
         setExtracting(false);
+        setProgress("");
       }
     },
-    [onTextExtracted]
+    [extractFromFile, onTextExtracted]
   );
 
   const handleDrop = useCallback(
     (e: React.DragEvent) => {
       e.preventDefault();
       setDragging(false);
-      const file = e.dataTransfer.files[0];
-      if (file && file.type === "application/pdf") extractText(file);
+      const files = Array.from(e.dataTransfer.files);
+      processFiles(files);
     },
-    [extractText]
+    [processFiles]
   );
 
   const handleFileChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
-      const file = e.target.files?.[0];
-      if (file) extractText(file);
+      const files = Array.from(e.target.files || []);
+      if (files.length > 0) processFiles(files);
+      if (fileRef.current) fileRef.current.value = "";
     },
-    [extractText]
+    [processFiles]
   );
 
   return (
@@ -85,14 +106,14 @@ export default function PDFUploader({ onTextExtracted }: Props) {
         {extracting ? (
           <>
             <div className="text-3xl animate-pulse mb-2">📄</div>
-            <p className="text-slate-600 font-medium">Extracting text from PDF...</p>
-            <p className="text-slate-400 text-sm mt-1">{fileName}</p>
+            <p className="text-slate-600 font-medium">Extracting text from PDFs...</p>
+            <p className="text-slate-400 text-sm mt-1">{progress}</p>
           </>
         ) : (
           <>
             <div className="text-3xl mb-2">📄</div>
             <p className="text-slate-700 font-medium">Upload UEE PDF</p>
-            <p className="text-slate-400 text-sm mt-1">Drag & drop or tap to select</p>
+            <p className="text-slate-400 text-sm mt-1">Drag & drop or tap to select (multiple OK)</p>
             <p className="text-blue-400 text-xs mt-2">e.g. UEENEEG006, UEENEEK002 ...</p>
           </>
         )}
@@ -101,6 +122,7 @@ export default function PDFUploader({ onTextExtracted }: Props) {
         ref={fileRef}
         type="file"
         accept=".pdf"
+        multiple
         onChange={handleFileChange}
         className="hidden"
       />

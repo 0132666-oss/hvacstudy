@@ -85,24 +85,23 @@ export function useStudyAI() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const analyzeImage = useCallback(async (base64: string, mimeType: string): Promise<StudyContent | null> => {
+  const analyzeImage = useCallback(async (images: Array<{ base64: string; mimeType: string }>): Promise<StudyContent | null> => {
     setLoading(true);
     setError(null);
     try {
-      const systemPrompt = STUDY_PROMPT;
+      const userContent: Array<{ type: string; [key: string]: unknown }> = [];
+      for (const img of images) {
+        userContent.push({
+          type: "image",
+          source: { type: "base64", media_type: img.mimeType, data: img.base64 },
+        });
+      }
+      userContent.push({
+        type: "text",
+        text: `Analyze ${images.length > 1 ? "these" : "this"} HVAC study material image${images.length > 1 ? "s" : ""} and generate study content with lessons, summary, key terms, and quiz questions.`,
+      });
 
-      const text = await callClaude(
-        systemPrompt,
-        [
-          {
-            type: "image",
-            source: { type: "base64", media_type: mimeType, data: base64 },
-          },
-          { type: "text", text: "Analyze this HVAC study material and generate study content with lessons, summary, key terms, and quiz questions." },
-        ],
-        3500
-      );
-
+      const text = await callClaude(STUDY_PROMPT, userContent, 3500);
       const parsed = JSON.parse(text) as StudyContent;
       return parsed;
     } catch (err) {

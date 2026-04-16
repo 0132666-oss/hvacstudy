@@ -10,9 +10,10 @@ interface Props {
   source: QuizSource;
   onAddWrongNote: (note: Omit<QuizWrongNote, "id" | "addedAt" | "mastered" | "attemptCount">) => void;
   onFinish: () => void;
+  onContinue?: () => void;
 }
 
-export default function QuizRunner({ questions, sessionTitle, source, onAddWrongNote, onFinish }: Props) {
+export default function QuizRunner({ questions, sessionTitle, source, onAddWrongNote, onFinish, onContinue }: Props) {
   const [currentIdx, setCurrentIdx] = useState(0);
   const [results, setResults] = useState<QuizResult[]>([]);
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
@@ -129,9 +130,16 @@ export default function QuizRunner({ questions, sessionTitle, source, onAddWrong
           })}
         </div>
 
-        <button onClick={onFinish} className="w-full py-3 rounded-xl bg-blue-500 text-white font-semibold hover:bg-blue-600">
-          New Quiz
-        </button>
+        <div className="flex gap-3">
+          {onContinue && (
+            <button onClick={onContinue} className="flex-1 py-3 rounded-xl bg-blue-500 text-white font-semibold hover:bg-blue-600">
+              Next 8 Questions
+            </button>
+          )}
+          <button onClick={onFinish} className={`${onContinue ? "flex-1" : "w-full"} py-3 rounded-xl bg-slate-200 text-slate-700 font-semibold hover:bg-slate-300`}>
+            Exit
+          </button>
+        </div>
       </div>
     );
   }

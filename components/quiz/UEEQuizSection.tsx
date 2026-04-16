@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef } from "react";
 import { QuizQuestion } from "@/types/quiz";
 import { useQuizAI } from "@/hooks/useQuizAI";
 import { useQuizHistory } from "@/hooks/useQuizHistory";
@@ -15,11 +15,17 @@ export default function UEEQuizSection() {
   const { addWrongNote } = useQuizHistory();
   const { sessions, addSession, deleteSession } = useQuizSessions("uee");
 
+  // Store PDF text + fileName for re-generation
+  const pdfDataRef = useRef<{ text: string; fileName: string } | null>(null);
+
   const handlePDFText = useCallback(
     async (text: string, fileName: string) => {
+      pdfDataRef.current = { text, fileName };
       const result = await generateFromPDF(text, fileName);
       if (result) {
         addSession(result.title, result.questions, "uee");
+        setActiveTitle(result.title);
+        setActiveQuestions(result.questions);
       }
     },
     [generateFromPDF, addSession]
@@ -32,6 +38,18 @@ export default function UEEQuizSection() {
       setActiveQuestions(session.questions);
     }
   }, [sessions]);
+
+  const handleContinue = useCallback(async () => {
+    if (!pdfDataRef.current) return;
+    const { text, fileName } = pdfDataRef.current;
+    setActiveQuestions(null); // show loading
+    const result = await generateFromPDF(text, fileName);
+    if (result) {
+      addSession(result.title, result.questions, "uee");
+      setActiveTitle(result.title);
+      setActiveQuestions(result.questions);
+    }
+  }, [generateFromPDF, addSession]);
 
   const handleReset = useCallback(() => {
     setActiveQuestions(null);
@@ -60,6 +78,7 @@ export default function UEEQuizSection() {
           source="uee"
           onAddWrongNote={addWrongNote}
           onFinish={handleReset}
+          onContinue={pdfDataRef.current ? handleContinue : undefined}
         />
       </div>
     );

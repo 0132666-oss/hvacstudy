@@ -20,8 +20,14 @@ export interface QuizQuestion {
   explanation: string;
 }
 
+export interface Lesson {
+  heading: string;
+  body: string;
+}
+
 export interface StudyContent {
   title: string;
+  lessons: Lesson[];
   summary: string[];
   keyTerms: KeyTerm[];
   questions: QuizQuestion[];

@@ -39,6 +39,48 @@ async function callClaude(
   return text;
 }
 
+const STUDY_PROMPT = `You are an HVAC education expert creating a comprehensive study guide for Australian TAFE Certificate III in Air Conditioning & Refrigeration.
+
+Return ONLY valid JSON (no markdown, no code blocks):
+{
+  "title": "Topic title",
+  "lessons": [
+    {"heading": "Section heading", "body": "2-4 sentence detailed explanation of this concept. Include specific values, standards, or procedures."}
+  ],
+  "summary": ["Key point 1", "Key point 2"],
+  "keyTerms": [
+    {"term": "Technical Term", "definition": "Clear definition with context"}
+  ],
+  "questions": [
+    {
+      "id": "q1",
+      "type": "mcq",
+      "question": "Question?",
+      "options": ["A) opt1", "B) opt2", "C) opt3", "D) opt4"],
+      "correctAnswer": "A) opt1",
+      "hint": "Hint",
+      "explanation": "Why correct"
+    },
+    {
+      "id": "q4",
+      "type": "short",
+      "question": "Short answer question?",
+      "correctAnswer": "Expected answer",
+      "hint": "Hint",
+      "explanation": "Explanation"
+    }
+  ]
+}
+
+Rules:
+- lessons: 4-6 sections that teach the material step-by-step, like a textbook chapter. Each body should be detailed (2-4 sentences) with specific technical facts.
+- summary: 4-6 bullet points of the most important takeaways
+- keyTerms: 6-10 terms with definitions a student must memorize
+- questions: exactly 5 questions — 3 MCQ + 2 short answer
+- Questions must test specific technical details, NOT unit names or objectives
+- Focus on values, procedures, Australian standards (AS/NZS), components, formulas
+- All content in English`;
+
 export function useStudyAI() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -47,44 +89,7 @@ export function useStudyAI() {
     setLoading(true);
     setError(null);
     try {
-      const systemPrompt = `You are an HVAC education expert for Australian TAFE Certificate III in Air Conditioning & Refrigeration.
-Analyze the uploaded textbook/study material image and create study content.
-
-Return ONLY valid JSON (no markdown, no code blocks) in this exact format:
-{
-  "title": "Topic title in English",
-  "summary": ["Key point 1", "Key point 2", "Key point 3", "Key point 4", "Key point 5"],
-  "keyTerms": [
-    {"term": "Technical Term", "definition": "Clear definition"}
-  ],
-  "questions": [
-    {
-      "id": "q1",
-      "type": "mcq",
-      "question": "Question text?",
-      "options": ["A) option1", "B) option2", "C) option3", "D) option4"],
-      "correctAnswer": "A) option1",
-      "hint": "Helpful hint",
-      "explanation": "Why this is correct"
-    },
-    {
-      "id": "q4",
-      "type": "short",
-      "question": "Short answer question?",
-      "correctAnswer": "Expected answer",
-      "hint": "Helpful hint",
-      "explanation": "Detailed explanation"
-    }
-  ]
-}
-
-Rules:
-- Generate exactly 5 questions: 3 MCQ + 2 short answer
-- Focus on HVAC concepts: refrigeration cycle, ductwork, electrical, safety, Australian standards (AS/NZS)
-- Questions should match TAFE exam style
-- All content in English
-- Summary should have 4-6 bullet points
-- Include 4-8 key terms`;
+      const systemPrompt = STUDY_PROMPT;
 
       const text = await callClaude(
         systemPrompt,
@@ -93,9 +98,9 @@ Rules:
             type: "image",
             source: { type: "base64", media_type: mimeType, data: base64 },
           },
-          { type: "text", text: "Analyze this HVAC study material and generate study content." },
+          { type: "text", text: "Analyze this HVAC study material and generate study content with lessons, summary, key terms, and quiz questions." },
         ],
-        2000
+        3500
       );
 
       const parsed = JSON.parse(text) as StudyContent;
@@ -112,45 +117,7 @@ Rules:
     setLoading(true);
     setError(null);
     try {
-      const systemPrompt = `You are an HVAC education expert for Australian TAFE Certificate III in Air Conditioning & Refrigeration.
-Analyze the provided study material text and create comprehensive study content.
-
-Return ONLY valid JSON (no markdown, no code blocks) in this exact format:
-{
-  "title": "Topic title in English",
-  "summary": ["Key point 1", "Key point 2", "Key point 3", "Key point 4", "Key point 5"],
-  "keyTerms": [
-    {"term": "Technical Term", "definition": "Clear definition"}
-  ],
-  "questions": [
-    {
-      "id": "q1",
-      "type": "mcq",
-      "question": "Question text?",
-      "options": ["A) option1", "B) option2", "C) option3", "D) option4"],
-      "correctAnswer": "A) option1",
-      "hint": "Helpful hint",
-      "explanation": "Why this is correct"
-    },
-    {
-      "id": "q4",
-      "type": "short",
-      "question": "Short answer question?",
-      "correctAnswer": "Expected answer",
-      "hint": "Helpful hint",
-      "explanation": "Detailed explanation"
-    }
-  ]
-}
-
-Rules:
-- Generate exactly 5 questions: 3 MCQ + 2 short answer
-- Summary should have 6-10 detailed bullet points covering the main technical content
-- Include 6-10 key terms with clear definitions
-- Questions must test specific technical details from the text
-- DO NOT ask about unit names, objectives, or structure
-- Focus on values, procedures, standards, components, and formulas
-- All content in English`;
+      const systemPrompt = STUDY_PROMPT;
 
       const truncated = pdfText.slice(0, 10000);
       const text = await callClaude(
@@ -158,10 +125,10 @@ Rules:
         [
           {
             type: "text",
-            text: `Study material from ${fileName}:\n\n${truncated}\n\nCreate comprehensive study content from this material.`,
+            text: `Study material from ${fileName}:\n\n${truncated}\n\nCreate comprehensive study content with lessons, summary, key terms, and quiz questions.`,
           },
         ],
-        3000
+        3500
       );
 
       return JSON.parse(text) as StudyContent;

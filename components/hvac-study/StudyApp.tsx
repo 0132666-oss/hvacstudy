@@ -10,15 +10,16 @@ import { useStudySessions } from "@/hooks/useStudySessions";
 import ImageUploader from "./ImageUploader";
 import SummaryView from "./SummaryView";
 import QuizView from "./QuizView";
+import LectureView from "./LectureView";
 import ValidationBadge from "./ValidationBadge";
 import PDFUploader from "@/components/quiz/PDFUploader";
 
 type InputTab = "pdf" | "image";
-type ViewTab = "summary" | "quiz";
+type ViewTab = "lecture" | "summary" | "quiz";
 
 export default function StudyApp() {
   const [inputTab, setInputTab] = useState<InputTab>("pdf");
-  const [viewTab, setViewTab] = useState<ViewTab>("summary");
+  const [viewTab, setViewTab] = useState<ViewTab>("lecture");
   const [step, setStep] = useState<PipelineStep>("idle");
   const [content, setContent] = useState<StudyContent | null>(null);
   const [quizContent, setQuizContent] = useState<StudyContent | null>(null);
@@ -31,7 +32,7 @@ export default function StudyApp() {
   const processContent = useCallback(
     async (result: StudyContent, source: StudySource) => {
       setContent(result);
-      setViewTab("summary");
+      setViewTab("lecture");
       setStep("validating");
       addSession(result.title, result, source);
 
@@ -77,7 +78,7 @@ export default function StudyApp() {
     if (session) {
       setContent(session.content);
       setQuizContent(session.content);
-      setViewTab("summary");
+      setViewTab("lecture");
       setStep("ready");
     }
   }, [sessions]);
@@ -121,7 +122,7 @@ export default function StudyApp() {
       {content && (
         <nav className="max-w-2xl mx-auto px-4 pt-4">
           <div className="flex gap-1 p-1 bg-slate-100 rounded-xl">
-            {(["summary", "quiz"] as const).map((t) => (
+            {(["lecture", "summary", "quiz"] as const).map((t) => (
               <button
                 key={t}
                 onClick={() => setViewTab(t)}
@@ -129,7 +130,7 @@ export default function StudyApp() {
                   viewTab === t ? "bg-white text-slate-800 shadow-sm" : "text-slate-500 hover:text-slate-700"
                 }`}
               >
-                {t === "summary" ? "📋 Summary" : "✏️ Quiz"}
+                {t === "lecture" ? "📖 Lecture" : t === "summary" ? "📋 Summary" : "✏️ Quiz"}
               </button>
             ))}
           </div>
@@ -225,6 +226,11 @@ export default function StudyApp() {
             <p className="text-slate-600 font-medium">Analyzing your material...</p>
             <p className="text-slate-400 text-sm mt-1">Creating study content with AI</p>
           </div>
+        )}
+
+        {/* Lecture view */}
+        {content && viewTab === "lecture" && (
+          <LectureView content={content} />
         )}
 
         {/* Summary view */}

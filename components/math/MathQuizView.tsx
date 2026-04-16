@@ -196,8 +196,10 @@ export default function MathQuizView() {
         💡 Hint
       </button>
       {hintVisible && (
-        <div className="p-3 rounded-xl bg-amber-50 border border-amber-100">
-          <p className="text-sm text-amber-800">💡 {current.hint}</p>
+        <div className="p-4 rounded-xl bg-amber-50 border border-amber-100 space-y-1">
+          {current.hint.split("\n").map((line, i) => (
+            <p key={i} className="text-sm text-amber-800 font-mono">{line}</p>
+          ))}
         </div>
       )}
 

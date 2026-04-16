@@ -42,7 +42,7 @@ const generators: ProblemGenerator[] = [
       tolerance: 0.01,
       unit: "A",
       formulaLabel: "I = V/R",
-      hint: "Use Ohm's Law: I = V ÷ R",
+      hint: `Step 1: Identify — V = ${V}V, R = ${R}Ω, find I = ?\nStep 2: Formula — I = V ÷ R\nStep 3: Substitute — I = ${V} ÷ ${R}\nStep 4: Calculate — I = ${I.toFixed(2)} A`,
       explanation: `I = V ÷ R = ${V} ÷ ${R} = ${I.toFixed(2)} A`,
     };
   },
@@ -59,7 +59,7 @@ const generators: ProblemGenerator[] = [
       tolerance: 0.1,
       unit: "V",
       formulaLabel: "V = IR",
-      hint: "Use Ohm's Law: V = I × R",
+      hint: `Step 1: Identify — I = ${I}A, R = ${R}Ω, find V = ?\nStep 2: Formula — V = I × R\nStep 3: Substitute — V = ${I} × ${R}\nStep 4: Calculate — V = ${V.toFixed(2)} V`,
       explanation: `V = I × R = ${I} × ${R} = ${V.toFixed(2)} V`,
     };
   },
@@ -76,7 +76,7 @@ const generators: ProblemGenerator[] = [
       tolerance: 0.1,
       unit: "Ω",
       formulaLabel: "R = V/I",
-      hint: "Use Ohm's Law: R = V ÷ I",
+      hint: `Step 1: Identify — V = ${V}V, I = ${I}A, find R = ?\nStep 2: Formula — R = V ÷ I\nStep 3: Substitute — R = ${V} ÷ ${I}\nStep 4: Calculate — R = ${R.toFixed(2)} Ω`,
       explanation: `R = V ÷ I = ${V} ÷ ${I} = ${R.toFixed(2)} Ω`,
     };
   },
@@ -93,7 +93,7 @@ const generators: ProblemGenerator[] = [
       tolerance: 0.5,
       unit: "W",
       formulaLabel: "P = VI",
-      hint: "Power = Voltage × Current",
+      hint: `Step 1: Identify — V = ${V}V, I = ${I}A, find P = ?\nStep 2: Formula — P = V × I\nStep 3: Substitute — P = ${V} × ${I}\nStep 4: Calculate — P = ${P.toFixed(2)} W`,
       explanation: `P = V × I = ${V} × ${I} = ${P.toFixed(2)} W`,
     };
   },
@@ -101,7 +101,8 @@ const generators: ProblemGenerator[] = [
   () => {
     const I = rand(1, 8);
     const R = rand(10, 50, 0);
-    const P = I * I * R;
+    const Isq = I * I;
+    const P = Isq * R;
     return {
       id: `power-i2r-${Date.now()}`,
       category: "power",
@@ -110,8 +111,8 @@ const generators: ProblemGenerator[] = [
       tolerance: 0.5,
       unit: "W",
       formulaLabel: "P = I²R",
-      hint: "P = I² × R — square the current first, then multiply by resistance",
-      explanation: `P = I² × R = ${I}² × ${R} = ${(I * I).toFixed(2)} × ${R} = ${P.toFixed(2)} W`,
+      hint: `Step 1: Identify — I = ${I}A, R = ${R}Ω, find P = ?\nStep 2: Formula — P = I² × R\nStep 3: Square the current — I² = ${I}² = ${Isq.toFixed(2)}\nStep 4: Multiply — P = ${Isq.toFixed(2)} × ${R} = ${P.toFixed(2)} W`,
+      explanation: `P = I² × R = ${I}² × ${R} = ${Isq.toFixed(2)} × ${R} = ${P.toFixed(2)} W`,
     };
   },
   // Power: I = P/V
@@ -127,7 +128,7 @@ const generators: ProblemGenerator[] = [
       tolerance: 0.01,
       unit: "A",
       formulaLabel: "I = P/V",
-      hint: "I = P ÷ V",
+      hint: `Step 1: Identify — P = ${P}W, V = ${V}V, find I = ?\nStep 2: Formula — I = P ÷ V\nStep 3: Substitute — I = ${P} ÷ ${V}\nStep 4: Calculate — I = ${I.toFixed(2)} A`,
       explanation: `I = P ÷ V = ${P} ÷ ${V} = ${I.toFixed(2)} A`,
     };
   },
@@ -144,7 +145,7 @@ const generators: ProblemGenerator[] = [
       tolerance: 0.1,
       unit: "V",
       formulaLabel: "V = P/I",
-      hint: "V = P ÷ I",
+      hint: `Step 1: Identify — P = ${P}W, I = ${I}A, find V = ?\nStep 2: Formula — V = P ÷ I\nStep 3: Substitute — V = ${P} ÷ ${I}\nStep 4: Calculate — V = ${V.toFixed(2)} V`,
       explanation: `V = P ÷ I = ${P} ÷ ${I} = ${V.toFixed(2)} V`,
     };
   },
@@ -161,7 +162,7 @@ const generators: ProblemGenerator[] = [
       tolerance: 0.5,
       unit: "%",
       formulaLabel: "η = (Pout/Pin) × 100%",
-      hint: "η = (Pout ÷ Pin) × 100",
+      hint: `Step 1: Identify — Pin = ${Pin}W, Pout = ${Pout}W, find η = ?\nStep 2: Formula — η = (Pout ÷ Pin) × 100\nStep 3: Divide — ${Pout} ÷ ${Pin} = ${(Pout / Pin).toFixed(4)}\nStep 4: Multiply — ${(Pout / Pin).toFixed(4)} × 100 = ${eta.toFixed(1)}%`,
       explanation: `η = (${Pout} ÷ ${Pin}) × 100 = ${eta.toFixed(1)}%`,
     };
   },
@@ -178,7 +179,7 @@ const generators: ProblemGenerator[] = [
       tolerance: 0.1,
       unit: "W",
       formulaLabel: "Losses = Pin - Pout",
-      hint: "Losses = Input Power - Output Power",
+      hint: `Step 1: Identify — Pin = ${Pin}W, Pout = ${Pout}W, find Losses = ?\nStep 2: Formula — Losses = Pin - Pout\nStep 3: Substitute — Losses = ${Pin} - ${Pout}\nStep 4: Calculate — Losses = ${losses} W`,
       explanation: `Losses = ${Pin} - ${Pout} = ${losses} W`,
     };
   },
@@ -195,7 +196,7 @@ const generators: ProblemGenerator[] = [
       tolerance: 0.5,
       unit: "W",
       formulaLabel: "Pout = Pin × (η/100)",
-      hint: "Pout = Pin × (η ÷ 100)",
+      hint: `Step 1: Identify — Pin = ${Pin}W, η = ${eta}%, find Pout = ?\nStep 2: Formula — Pout = Pin × (η ÷ 100)\nStep 3: Convert — ${eta} ÷ 100 = ${(eta / 100).toFixed(2)}\nStep 4: Multiply — Pout = ${Pin} × ${(eta / 100).toFixed(2)} = ${Pout.toFixed(1)} W`,
       explanation: `Pout = ${Pin} × (${eta} ÷ 100) = ${Pout.toFixed(1)} W`,
     };
   },
@@ -203,7 +204,8 @@ const generators: ProblemGenerator[] = [
   () => {
     const theta = rand(15, 75, 0);
     const c = rand(5, 20);
-    const a = c * Math.sin((theta * Math.PI) / 180);
+    const sinVal = Math.sin((theta * Math.PI) / 180);
+    const a = c * sinVal;
     const triangle: TriangleDiagram = { sideC: c, angleTheta: theta, unknownSide: "a" };
     return {
       id: `trig-sin-a-${Date.now()}`,
@@ -213,8 +215,8 @@ const generators: ProblemGenerator[] = [
       tolerance: 0.05,
       unit: "",
       formulaLabel: "sin θ = a/c",
-      hint: "a = c × sin θ",
-      explanation: `a = c × sin(${theta}°) = ${c} × ${Math.sin((theta * Math.PI) / 180).toFixed(4)} = ${a.toFixed(2)}`,
+      hint: `Step 1: Identify — c = ${c}, θ = ${theta}°, find a = ?\nStep 2: Formula — sin θ = a/c → a = c × sin θ\nStep 3: Find sin(${theta}°) = ${sinVal.toFixed(4)}\nStep 4: Multiply — a = ${c} × ${sinVal.toFixed(4)} = ${a.toFixed(2)}`,
+      explanation: `a = c × sin(${theta}°) = ${c} × ${sinVal.toFixed(4)} = ${a.toFixed(2)}`,
       triangle,
     };
   },
@@ -222,7 +224,8 @@ const generators: ProblemGenerator[] = [
   () => {
     const theta = rand(15, 75, 0);
     const c = rand(5, 20);
-    const b = c * Math.cos((theta * Math.PI) / 180);
+    const cosVal = Math.cos((theta * Math.PI) / 180);
+    const b = c * cosVal;
     const triangle: TriangleDiagram = { sideC: c, angleTheta: theta, unknownSide: "b" };
     return {
       id: `trig-cos-b-${Date.now()}`,
@@ -232,8 +235,8 @@ const generators: ProblemGenerator[] = [
       tolerance: 0.05,
       unit: "",
       formulaLabel: "cos θ = b/c",
-      hint: "b = c × cos θ",
-      explanation: `b = c × cos(${theta}°) = ${c} × ${Math.cos((theta * Math.PI) / 180).toFixed(4)} = ${b.toFixed(2)}`,
+      hint: `Step 1: Identify — c = ${c}, θ = ${theta}°, find b = ?\nStep 2: Formula — cos θ = b/c → b = c × cos θ\nStep 3: Find cos(${theta}°) = ${cosVal.toFixed(4)}\nStep 4: Multiply — b = ${c} × ${cosVal.toFixed(4)} = ${b.toFixed(2)}`,
+      explanation: `b = c × cos(${theta}°) = ${c} × ${cosVal.toFixed(4)} = ${b.toFixed(2)}`,
       triangle,
     };
   },
@@ -241,7 +244,8 @@ const generators: ProblemGenerator[] = [
   () => {
     const theta = rand(15, 65, 0);
     const b = rand(3, 15);
-    const a = b * Math.tan((theta * Math.PI) / 180);
+    const tanVal = Math.tan((theta * Math.PI) / 180);
+    const a = b * tanVal;
     const triangle: TriangleDiagram = { sideB: b, angleTheta: theta, unknownSide: "a" };
     return {
       id: `trig-tan-a-${Date.now()}`,
@@ -251,8 +255,8 @@ const generators: ProblemGenerator[] = [
       tolerance: 0.05,
       unit: "",
       formulaLabel: "tan θ = a/b",
-      hint: "a = b × tan θ",
-      explanation: `a = b × tan(${theta}°) = ${b} × ${Math.tan((theta * Math.PI) / 180).toFixed(4)} = ${a.toFixed(2)}`,
+      hint: `Step 1: Identify — b = ${b}, θ = ${theta}°, find a = ?\nStep 2: Formula — tan θ = a/b → a = b × tan θ\nStep 3: Find tan(${theta}°) = ${tanVal.toFixed(4)}\nStep 4: Multiply — a = ${b} × ${tanVal.toFixed(4)} = ${a.toFixed(2)}`,
+      explanation: `a = b × tan(${theta}°) = ${b} × ${tanVal.toFixed(4)} = ${a.toFixed(2)}`,
       triangle,
     };
   },
@@ -260,7 +264,10 @@ const generators: ProblemGenerator[] = [
   () => {
     const a = rand(3, 12);
     const b = rand(3, 12);
-    const c = Math.sqrt(a * a + b * b);
+    const aSq = a * a;
+    const bSq = b * b;
+    const sum = aSq + bSq;
+    const c = Math.sqrt(sum);
     const triangle: TriangleDiagram = { sideA: a, sideB: b, unknownSide: "c" };
     return {
       id: `trig-pyth-c-${Date.now()}`,
@@ -270,8 +277,8 @@ const generators: ProblemGenerator[] = [
       tolerance: 0.05,
       unit: "",
       formulaLabel: "c² = a² + b²",
-      hint: "c = √(a² + b²)",
-      explanation: `c = √(${a}² + ${b}²) = √(${(a * a).toFixed(2)} + ${(b * b).toFixed(2)}) = √${(a * a + b * b).toFixed(2)} = ${c.toFixed(2)}`,
+      hint: `Step 1: Identify — a = ${a}, b = ${b}, find c = ?\nStep 2: Formula — c = √(a² + b²)\nStep 3: Square each — a² = ${aSq.toFixed(2)}, b² = ${bSq.toFixed(2)}\nStep 4: Add — ${aSq.toFixed(2)} + ${bSq.toFixed(2)} = ${sum.toFixed(2)}\nStep 5: Square root — c = √${sum.toFixed(2)} = ${c.toFixed(2)}`,
+      explanation: `c = √(${a}² + ${b}²) = √(${aSq.toFixed(2)} + ${bSq.toFixed(2)}) = √${sum.toFixed(2)} = ${c.toFixed(2)}`,
       triangle,
     };
   },
@@ -279,7 +286,8 @@ const generators: ProblemGenerator[] = [
   () => {
     const a = rand(2, 10);
     const c = rand(a + 1, a + 10);
-    const theta = (Math.asin(a / c) * 180) / Math.PI;
+    const ratio = a / c;
+    const theta = (Math.asin(ratio) * 180) / Math.PI;
     const triangle: TriangleDiagram = { sideA: a, sideC: c, unknownSide: "theta" };
     return {
       id: `trig-arcsin-${Date.now()}`,
@@ -289,8 +297,8 @@ const generators: ProblemGenerator[] = [
       tolerance: 0.5,
       unit: "°",
       formulaLabel: "θ = arcsin(a/c)",
-      hint: "θ = sin⁻¹(a ÷ c)",
-      explanation: `θ = sin⁻¹(${a} ÷ ${c}) = sin⁻¹(${(a / c).toFixed(4)}) = ${theta.toFixed(1)}°`,
+      hint: `Step 1: Identify — a = ${a}, c = ${c}, find θ = ?\nStep 2: Formula — θ = sin⁻¹(a ÷ c)\nStep 3: Divide — ${a} ÷ ${c} = ${ratio.toFixed(4)}\nStep 4: Inverse sin — θ = sin⁻¹(${ratio.toFixed(4)}) = ${theta.toFixed(1)}°`,
+      explanation: `θ = sin⁻¹(${a} ÷ ${c}) = sin⁻¹(${ratio.toFixed(4)}) = ${theta.toFixed(1)}°`,
       triangle,
     };
   },

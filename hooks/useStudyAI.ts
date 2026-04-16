@@ -98,7 +98,7 @@ export function useStudyAI() {
       }
       userContent.push({
         type: "text",
-        text: `Analyze ${images.length > 1 ? "these" : "this"} HVAC study material image${images.length > 1 ? "s" : ""} and generate study content with lessons, summary, key terms, and quiz questions.`,
+        text: `[Seed: ${Math.random().toString(36).slice(2, 8)}] Analyze ${images.length > 1 ? "these" : "this"} HVAC study material image${images.length > 1 ? "s" : ""}. Generate UNIQUE study content — pick different details and angles each time.`,
       });
 
       const text = await callClaude(STUDY_PROMPT, userContent, 3500);
@@ -124,7 +124,7 @@ export function useStudyAI() {
         [
           {
             type: "text",
-            text: `Study material from ${fileName}:\n\n${truncated}\n\nCreate comprehensive study content with lessons, summary, key terms, and quiz questions.`,
+            text: `[Seed: ${Math.random().toString(36).slice(2, 8)}] Study material from ${fileName}:\n\n${truncated}\n\nGenerate UNIQUE study content — pick different details and angles each time.`,
           },
         ],
         3500

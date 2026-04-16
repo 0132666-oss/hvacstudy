@@ -4,7 +4,7 @@ import { useState, useCallback } from "react";
 import { QuizQuestion } from "@/types/quiz";
 
 const API_KEY = process.env.NEXT_PUBLIC_ANTHROPIC_API_KEY || "";
-const MODEL = "claude-sonnet-4-20250514";
+const MODEL = "claude-3-5-sonnet-20241022";
 const API_URL = "https://api.anthropic.com/v1/messages";
 
 interface ShortAnswerResult {

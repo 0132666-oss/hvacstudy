@@ -44,8 +44,8 @@ async function callClaude(
   return text;
 }
 
-const QUIZ_SYSTEM_PROMPT = `You are an HVAC education expert for Australian TAFE Certificate III in Air Conditioning & Refrigeration.
-Generate quiz questions based on the provided study material.
+const QUIZ_SYSTEM_PROMPT = `You are an HVAC exam writer for Australian TAFE Certificate III.
+Generate HARD, DETAILED quiz questions from the provided study material.
 
 Return ONLY valid JSON (no markdown, no code blocks):
 {
@@ -71,15 +71,29 @@ Return ONLY valid JSON (no markdown, no code blocks):
   ]
 }
 
+STRICTLY FORBIDDEN question types (NEVER generate these):
+- "What does [abbreviation] stand for?"
+- "What is the main objective/purpose of this unit?"
+- "Which of the following is an objective of...?"
+- Any question about the unit code, unit name, or unit structure
+- Any question answerable without reading the technical content
+
+REQUIRED question types (generate ONLY these):
+- Specific voltage/current/resistance values mentioned in the text
+- Circuit diagrams: component identification, fault finding steps
+- Safety procedures: specific steps, order of operations, PPE requirements
+- Australian Standards: specific AS/NZS numbers and what they require
+- Formulas: Ohm's law applications, power calculations with specific values
+- Troubleshooting: "If symptom X occurs, what is the most likely cause?"
+- Tool/equipment usage: specific tools for specific tasks
+- Wiring methods: color codes, termination procedures, testing methods
+
 Rules:
 - Generate exactly 8 questions: 5 MCQ + 3 short answer
-- Questions MUST be about specific technical details FROM the provided PDF content
-- DO NOT ask generic questions about the unit name, objectives, or structure
-- Ask about specific facts, values, formulas, procedures, standards, components, and technical terms mentioned in the text
-- MCQ should test detailed knowledge: "Which of the following is NOT a type of...", "What is the correct value for...", "According to the text, which component..."
-- Short answer should ask for specific technical explanations or definitions from the content
+- Every question must require reading the PDF content to answer
+- Questions must be at TAFE exam difficulty level, not introductory
 - All content in English
-- Focus on testable technical knowledge, not meta-information about the unit itself`;
+- Each question should cover a DIFFERENT topic from the material`;
 
 const GRADING_PROMPT = `You are an HVAC exam grader. Grade the student's short answer.
 Accept if meaning is correct and key technical concepts are present.
@@ -103,12 +117,13 @@ export function useQuizAI() {
       setError(null);
       try {
         const truncated = pdfText.slice(0, 8000);
+        const seed = Math.random().toString(36).slice(2, 8);
         const text = await callClaude(
           QUIZ_SYSTEM_PROMPT,
           [
             {
               type: "text",
-              text: `This is content from a UEE TAFE unit PDF (${fileName}):\n\n${truncated}\n\nGenerate quiz questions based on this unit content.`,
+              text: `[Seed: ${seed}] This is content from a UEE TAFE unit PDF (${fileName}):\n\n${truncated}\n\nGenerate a UNIQUE set of quiz questions. Focus on different sections and details each time.`,
             },
           ],
           2500

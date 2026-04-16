@@ -37,7 +37,11 @@ async function callClaude(
 
   if (!res.ok) throw new Error(`API error: ${res.status}`);
   const data = await res.json();
-  return data.content[0].text;
+  let text = data.content[0].text;
+  // Strip markdown code blocks if present
+  const jsonMatch = text.match(/```(?:json)?\s*([\s\S]*?)```/);
+  if (jsonMatch) text = jsonMatch[1].trim();
+  return text;
 }
 
 const QUIZ_SYSTEM_PROMPT = `You are an HVAC education expert for Australian TAFE Certificate III in Air Conditioning & Refrigeration.

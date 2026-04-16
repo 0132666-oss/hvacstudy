@@ -33,7 +33,10 @@ async function callClaude(
   }
 
   const data = await res.json();
-  return data.content[0].text;
+  let text = data.content[0].text;
+  const jsonMatch = text.match(/```(?:json)?\s*([\s\S]*?)```/);
+  if (jsonMatch) text = jsonMatch[1].trim();
+  return text;
 }
 
 export function useStudyAI() {

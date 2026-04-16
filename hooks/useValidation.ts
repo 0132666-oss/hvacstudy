@@ -74,7 +74,9 @@ Return ONLY valid JSON:
       if (!res.ok) throw new Error(`Validation API error: ${res.status}`);
 
       const data = await res.json();
-      const text = data.content[0].text;
+      let text = data.content[0].text;
+      const jsonMatch = text.match(/```(?:json)?\s*([\s\S]*?)```/);
+      if (jsonMatch) text = jsonMatch[1].trim();
       const parsed = JSON.parse(text);
 
       const corrections: QuestionValidation[] = parsed.corrections;

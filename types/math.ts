@@ -8,9 +8,12 @@ export interface Formula {
   variables: { symbol: string; name: string; unit: string }[];
 }
 
+export type Difficulty = "easy" | "medium" | "hard";
+
 export interface MathProblem {
   id: string;
   category: MathCategory;
+  difficulty: Difficulty;
   question: string;
   answer: number;
   tolerance: number;

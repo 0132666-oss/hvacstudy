@@ -182,6 +182,15 @@ export default function MathQuizView() {
             {meta.label}
           </span>
           <span className="text-xs text-slate-400 font-mono">{current.formulaLabel}</span>
+          {current.difficulty && (
+            <span className={`text-[10px] font-medium px-1.5 py-0.5 rounded-full ${
+              current.difficulty === "easy" ? "bg-green-50 text-green-600 border border-green-200" :
+              current.difficulty === "medium" ? "bg-amber-50 text-amber-600 border border-amber-200" :
+              "bg-red-50 text-red-600 border border-red-200"
+            }`}>
+              {current.difficulty === "easy" ? "Easy" : current.difficulty === "medium" ? "Medium" : "Hard"}
+            </span>
+          )}
         </div>
         <p className="text-slate-800 font-medium">{current.question}</p>
 

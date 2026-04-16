@@ -48,7 +48,9 @@ export default function QuizRunner({ questions, sessionTitle, source, onAddWrong
     (option: string) => {
       if (currentResult) return;
       setSelectedOption(option);
-      const correct = option === current.correctAnswer;
+      const optionLetter = option.charAt(0).toUpperCase();
+      const correctLetter = current.correctAnswer.charAt(0).toUpperCase();
+      const correct = optionLetter === correctLetter;
       const result: QuizResult = { questionId: current.id, correct, userAnswer: option };
       setCurrentResult(result);
       setResults((prev) => [...prev, result]);
@@ -178,7 +180,7 @@ export default function QuizRunner({ questions, sessionTitle, source, onAddWrong
           {current.options?.map((option) => {
             let cls = "w-full text-left p-4 rounded-xl border transition-all ";
             if (currentResult) {
-              if (option === current.correctAnswer) cls += "bg-green-50 border-green-300 text-green-800";
+              if (option.charAt(0).toUpperCase() === current.correctAnswer.charAt(0).toUpperCase()) cls += "bg-green-50 border-green-300 text-green-800";
               else if (option === selectedOption && !currentResult.correct) cls += "bg-red-50 border-red-300 text-red-800";
               else cls += "bg-slate-50 border-slate-100 text-slate-400";
             } else {

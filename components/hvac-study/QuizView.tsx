@@ -37,7 +37,9 @@ export default function QuizView({ questions, topicTitle, onAddWrongNote, onFini
       if (currentResult) return; // Already answered
       setSelectedOption(option);
 
-      const correct = option === current.correctAnswer;
+      const optionLetter = option.charAt(0).toUpperCase();
+      const correctLetter = current.correctAnswer.charAt(0).toUpperCase();
+      const correct = optionLetter === correctLetter;
       const result: QuizResult = {
         questionId: current.id,
         correct,
@@ -279,7 +281,7 @@ export default function QuizView({ questions, topicTitle, onAddWrongNote, onFini
           {current.options?.map((option) => {
             let classes = "w-full text-left p-4 rounded-xl border transition-all ";
             if (currentResult) {
-              if (option === current.correctAnswer) {
+              if (option.charAt(0).toUpperCase() === current.correctAnswer.charAt(0).toUpperCase()) {
                 classes += "bg-green-50 border-green-300 text-green-800";
               } else if (option === selectedOption && !currentResult.correct) {
                 classes += "bg-red-50 border-red-300 text-red-800";

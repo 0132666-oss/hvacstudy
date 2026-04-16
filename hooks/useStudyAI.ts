@@ -108,6 +108,71 @@ Rules:
     }
   }, []);
 
+  const analyzeText = useCallback(async (pdfText: string, fileName: string): Promise<StudyContent | null> => {
+    setLoading(true);
+    setError(null);
+    try {
+      const systemPrompt = `You are an HVAC education expert for Australian TAFE Certificate III in Air Conditioning & Refrigeration.
+Analyze the provided study material text and create comprehensive study content.
+
+Return ONLY valid JSON (no markdown, no code blocks) in this exact format:
+{
+  "title": "Topic title in English",
+  "summary": ["Key point 1", "Key point 2", "Key point 3", "Key point 4", "Key point 5"],
+  "keyTerms": [
+    {"term": "Technical Term", "definition": "Clear definition"}
+  ],
+  "questions": [
+    {
+      "id": "q1",
+      "type": "mcq",
+      "question": "Question text?",
+      "options": ["A) option1", "B) option2", "C) option3", "D) option4"],
+      "correctAnswer": "A) option1",
+      "hint": "Helpful hint",
+      "explanation": "Why this is correct"
+    },
+    {
+      "id": "q4",
+      "type": "short",
+      "question": "Short answer question?",
+      "correctAnswer": "Expected answer",
+      "hint": "Helpful hint",
+      "explanation": "Detailed explanation"
+    }
+  ]
+}
+
+Rules:
+- Generate exactly 5 questions: 3 MCQ + 2 short answer
+- Summary should have 6-10 detailed bullet points covering the main technical content
+- Include 6-10 key terms with clear definitions
+- Questions must test specific technical details from the text
+- DO NOT ask about unit names, objectives, or structure
+- Focus on values, procedures, standards, components, and formulas
+- All content in English`;
+
+      const truncated = pdfText.slice(0, 10000);
+      const text = await callClaude(
+        systemPrompt,
+        [
+          {
+            type: "text",
+            text: `Study material from ${fileName}:\n\n${truncated}\n\nCreate comprehensive study content from this material.`,
+          },
+        ],
+        3000
+      );
+
+      return JSON.parse(text) as StudyContent;
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to analyze text");
+      return null;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
   const checkShortAnswer = useCallback(
     async (
       question: string,
@@ -168,5 +233,5 @@ missingWords: keywords the student missed (empty if correct)`;
     }
   }, []);
 
-  return { analyzeImage, checkShortAnswer, translateQuestion, loading, error };
+  return { analyzeImage, analyzeText, checkShortAnswer, translateQuestion, loading, error };
 }

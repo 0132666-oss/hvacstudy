@@ -44,3 +44,13 @@ export interface QuizResult {
 }
 
 export type PipelineStep = "idle" | "analyzing" | "validating" | "ready";
+
+export type StudySource = "pdf" | "image" | "notes";
+
+export interface StudySession {
+  id: string;
+  source: StudySource;
+  title: string;
+  content: StudyContent;
+  createdAt: number;
+}
